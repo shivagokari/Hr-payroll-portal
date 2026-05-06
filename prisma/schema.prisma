@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Core Users & Roles
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  role      String    @default("EMPLOYEE") // ADMIN, HR, FINANCE, EMPLOYEE
+  employee  Employee?
+}
+
+// Employee Details
+model Employee {
+  id              String   @id @default(cuid())
+  employeeCode    String   @unique
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  
+  // Personal
+  firstName       String
+  lastName        String
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+  designation     String
+  location        String
+  dob             DateTime
+  doj             DateTime
+  gender          String
+  mobile          String
+  
+  // Bank Details
+  bankAccountNo   String?
+  ifscCode        String?
+  bankName        String?
+  
+  // Gov Details
+  panNumber       String?
+  aadhaarNumber   String?
+  uanNumber       String?
+  esiNumber       String?
+  
+  // Employment
+  employmentType  String
+  status          String   @default("Active")
+  
+  salaryStructure SalaryStructure?
+  attendances     Attendance[]
+  payrolls        Payroll[]
+}
+
+model Department {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  employees Employee[]
+}
+
+// Salary & Payroll
+model SalaryStructure {
+  id              String   @id @default(cuid())
+  employeeId      String   @unique
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  grossSalary     Float
+}
+
+model Attendance {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  date        DateTime
+  status      String   // Present, Absent, Half Day, Paid Leave, LOP
+}
+
+model Payroll {
+  id              String   @id @default(cuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  month           Int
+  year            Int
+  
+  // Calculated Fields
+  payableDays     Float
+  grossSalary     Float
+  basic           Float
+  hra             Float
+  conveyance      Float
+  otherAllowance  Float
+  specialAllowance Float
+  
+  // Deductions
+  pf              Float
+  pt              Float
+  esi             Float
+  tds             Float
+  lopDeduction    Float
+  
+  netSalary       Float
+  status          String   // PENDING, HR_APPROVED, FINANCE_APPROVED, PAID
+}
