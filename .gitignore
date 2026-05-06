@@ -3,6 +3,10 @@ node_modules/
 .pnp
 .pnp.js
 
+# SQLite local database
+dev.db
+*.db
+
 # Build output
 .next/
 out/
