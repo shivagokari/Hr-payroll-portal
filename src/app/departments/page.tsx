@@ -15,35 +15,19 @@ type Department = {
 };
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([
+    { id: "1", name: "HR", _count: { employees: 0 } },
+    { id: "2", name: "Operations", _count: { employees: 0 } },
+    { id: "3", name: "Finance", _count: { employees: 0 } },
+  ]);
   const [newDeptName, setNewDeptName] = useState("");
 
-  const fetchDepartments = async () => {
-    const res = await fetch("/api/departments");
-    if (res.ok) {
-      const data = await res.json();
-      setDepartments(data);
-    }
-  };
-
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
-
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDeptName) return;
-
-    const res = await fetch("/api/departments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newDeptName }),
-    });
-
-    if (res.ok) {
-      setNewDeptName("");
-      fetchDepartments();
-    }
+    const newDept = { id: Date.now().toString(), name: newDeptName, _count: { employees: 0 } };
+    setDepartments([...departments, newDept]);
+    setNewDeptName("");
   };
 
   return (
